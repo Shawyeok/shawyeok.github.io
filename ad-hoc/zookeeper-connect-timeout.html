@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Zookeeper Java客户端连接慢、超时问题Ad-Hoc检查清单 | Yike Xiao&#39;s notes</title>
+    <meta name="generator" content="VuePress 1.9.10">
+    <script async="true" src="https://www.googletagmanager.com/gtag/js?id=G-0C1K4S1E51"></script>
+    <script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-0C1K4S1E51');</script>
+    <meta name="description" content="">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    
+    <link rel="preload" href="/assets/css/0.styles.6e54da3e.css" as="style"><link rel="preload" href="/assets/js/app.9ef48d25.js" as="script"><link rel="preload" href="/assets/js/2.f5eebbcb.js" as="script"><link rel="preload" href="/assets/js/1.9ad29131.js" as="script"><link rel="preload" href="/assets/js/32.31e0240c.js" as="script"><link rel="prefetch" href="/assets/js/10.21046356.js"><link rel="prefetch" href="/assets/js/11.2bedc7c8.js"><link rel="prefetch" href="/assets/js/12.46359a15.js"><link rel="prefetch" href="/assets/js/13.7695cfe8.js"><link rel="prefetch" href="/assets/js/14.0892301c.js"><link rel="prefetch" href="/assets/js/15.07042ca2.js"><link rel="prefetch" href="/assets/js/16.f3d7081e.js"><link rel="prefetch" href="/assets/js/17.1538bb10.js"><link rel="prefetch" href="/assets/js/18.bbd7dc45.js"><link rel="prefetch" href="/assets/js/19.fa97b02e.js"><link rel="prefetch" href="/assets/js/20.4eb6c79a.js"><link rel="prefetch" href="/assets/js/21.b0494726.js"><link rel="prefetch" href="/assets/js/22.31643f4c.js"><link rel="prefetch" href="/assets/js/23.7f7e5048.js"><link rel="prefetch" href="/assets/js/24.4d17083e.js"><link rel="prefetch" href="/assets/js/25.c75ab2e9.js"><link rel="prefetch" href="/assets/js/26.5d5c559e.js"><link rel="prefetch" href="/assets/js/27.047860c9.js"><link rel="prefetch" href="/assets/js/28.4999dee7.js"><link rel="prefetch" href="/assets/js/29.291b8e14.js"><link rel="prefetch" href="/assets/js/3.c8e115ea.js"><link rel="prefetch" href="/assets/js/30.ac87a54c.js"><link rel="prefetch" href="/assets/js/31.0546634e.js"><link rel="prefetch" href="/assets/js/33.98c113c0.js"><link rel="prefetch" href="/assets/js/34.39be6d45.js"><link rel="prefetch" href="/assets/js/35.65482061.js"><link rel="prefetch" href="/assets/js/4.7cad52cc.js"><link rel="prefetch" href="/assets/js/5.b1936ff3.js"><link rel="prefetch" href="/assets/js/6.9046b48b.js"><link rel="prefetch" href="/assets/js/7.145793b9.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.d6ebca66.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.6e54da3e.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">Yike Xiao's notes</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/article/" class="nav-link">
+  Article
+</a></div><div class="nav-item"><a href="/ad-hoc/" class="nav-link router-link-active">
+  Ad-Hoc
+</a></div><div class="nav-item"><a href="https://github.com/Shawyeok" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/article/" class="nav-link">
+  Article
+</a></div><div class="nav-item"><a href="/ad-hoc/" class="nav-link router-link-active">
+  Ad-Hoc
+</a></div><div class="nav-item"><a href="https://github.com/Shawyeok" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>Zookeeper</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ad-hoc/zookeeper-connect-timeout.html" aria-current="page" class="active sidebar-link">Zookeeper Java客户端连接慢、超时问题Ad-Hoc检查清单</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/ad-hoc/zookeeper-connect-timeout.html#tl-dr" class="sidebar-link">TL;DR</a></li><li class="sidebar-sub-header"><a href="/ad-hoc/zookeeper-connect-timeout.html#case记录" class="sidebar-link">case记录</a></li><li class="sidebar-sub-header"><a href="/ad-hoc/zookeeper-connect-timeout.html#参考链接" class="sidebar-link">参考链接</a></li><li class="sidebar-sub-header"><a href="/ad-hoc/zookeeper-connect-timeout.html#关于作者" class="sidebar-link">关于作者</a></li></ul></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="zookeeper-java客户端连接慢、超时问题ad-hoc检查清单"><a href="#zookeeper-java客户端连接慢、超时问题ad-hoc检查清单" class="header-anchor">#</a> Zookeeper Java客户端连接慢、超时问题Ad-Hoc检查清单</h1> <h2 id="tl-dr"><a href="#tl-dr" class="header-anchor">#</a> TL;DR</h2> <p>排查思路：</p> <ol><li><p>首先确认你的设备到zookeeper的连通性是OK的，可通过命令<code>echo srvr | nc HOST 2181</code>，检查是否可以正常打印节点信息。windows用户可以在命令行输入<code>telnet HOST 2181</code>连接后输入<code>srvr</code>然后回车。</p></li> <li><p>若步骤1检查OK，但就是连接慢或者超时，则通过启动进程连接zk期间执行<code>jstack -l &lt;pid&gt;</code>获取线程dump信息进一步分析，若不想一一排查，可尝试下面方法快速试下：</p> <ol><li>本地配置hosts文件，添加下面条目：<div class="language- extra-class"><pre class="language-text"><code>127.0.0.1   localhost mbpro.local
+::1         localhost mbpro.local
+</code></pre></div>注意：<code>mbpro.local</code>要替换为hostname命令的输出</li> <li>启动Java进程时配置系统属性：<code>-Djava.net.preferIPv4Stack=true -Dzookeeper.sasl.client=false</code></li></ol></li></ol> <h2 id="case记录"><a href="#case记录" class="header-anchor">#</a> case记录</h2> <p><strong>1. Zookeeper Java客户端初始化打印日志记录环境信息，卡在<code>InetAddress.getLocalHost().getCanonicalHostName()</code>方法</strong></p> <div class="language- extra-class"><pre class="language-text"><code>&quot;ZookeeperServiceUrlProvider-1&quot; #1 prio=5 os_prio=0 tid=0x00000000033b0800 nid=0x432c runnable [0x000000000329e000]
+   java.lang.Thread.State: RUNNABLE
+    at java.net.Inet4AddressImpl.lookupAllHostAddr(Native Method)
+    at java.net.InetAddress$2.lookupAllHostAddr(InetAddress.java:928)
+    at java.net.InetAddress.getAddressesFromNameService(InetAddress.java:1323)
+    at java.net.InetAddress.getAllByName0(InetAddress.java:1276)
+    at java.net.InetAddress.getAllByName0(InetAddress.java:1253)
+    at java.net.InetAddress.getHostFromNameService(InetAddress.java:634)
+    at java.net.InetAddress.getCanonicalHostName(InetAddress.java:588)
+    at org.apache.zookeeper.Environment.list(Environment.java:62)
+    at org.apache.zookeeper.Environment.logEnv(Environment.java:98)
+    at org.apache.zookeeper.ZooKeeper.&lt;clinit&gt;(ZooKeeper.java:97)
+    at ...
+</code></pre></div><p>解决方法：本地配置hosts文件，添加下面条目</p> <div class="language- extra-class"><pre class="language-text"><code>127.0.0.1   localhost mbpro.local
+::1         localhost mbpro.local
+</code></pre></div><p>注意：<code>mbpro.local</code>要替换为hostname命令的输出</p> <p><strong>2. DNS解析响应慢导致zk客户端SendThread卡住较长时间</strong></p> <div class="language- extra-class"><pre class="language-text"><code>&quot;ZookeeperServiceUrlProvider-1-SendThread()@9231&quot; daemon prio=5 tid=0x1b nid=NA waiting
+  java.lang.Thread.State: WAITING
+	  at java.lang.Object.wait(Object.java:-1)
+	  at java.lang.Object.wait(Object.java:502)
+	  at java.net.InetAddress.checkLookupTable(InetAddress.java:1393)
+	  at java.net.InetAddress.getAddressesFromNameService(InetAddress.java:1310)
+	  at java.net.InetAddress.getAllByName0(InetAddress.java:1276)
+	  at java.net.InetAddress.getAllByName0(InetAddress.java:1253)
+	  at java.net.InetAddress.getHostFromNameService(InetAddress.java:634)
+	  at java.net.InetAddress.getHostName(InetAddress.java:559)
+	  at java.net.InetAddress.getHostName(InetAddress.java:531)
+	  at java.net.InetSocketAddress$InetSocketAddressHolder.getHostName(InetSocketAddress.java:82)
+	  at java.net.InetSocketAddress$InetSocketAddressHolder.access$600(InetSocketAddress.java:56)
+	  at java.net.InetSocketAddress.getHostName(InetSocketAddress.java:345)
+	  at org.apache.zookeeper.ClientCnxn$SendThread.startConnect(ClientCnxn.java:998)
+	  at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1060)
+</code></pre></div><p>解决方法：</p> <ol><li>进一步排查DNS解析响应慢的问题</li> <li>切换至使用IP地址方式连接</li></ol> <p><strong>3. 客户端尝试SASL认证方式触发DNS反解析，DNS反解析响应慢导致超时</strong></p> <div class="language- extra-class"><pre class="language-text"><code>&quot;ZookeeperServiceUrlProvider-1-SendThread(HOST:2181)&quot; #34 daemon prio=5 os_prio=0 tid=0x0000024d6f94a000 nid=0xa984 runnable [0x000000ff9cffe000]
+   java.lang.Thread.State: RUNNABLE
+        at java.net.Inet4AddressImpl.getHostByAddr(Native Method)
+        at java.net.InetAddress$2.getHostByAddr(InetAddress.java:933)
+        at java.net.InetAddress.getHostFromNameService(InetAddress.java:618)
+        at java.net.InetAddress.getHostName(InetAddress.java:560)
+        at java.net.InetAddress.getHostName(InetAddress.java:532)
+        at java.net.InetSocketAddress$InetSocketAddressHolder.getHostName(InetSocketAddress.java:82)
+        at java.net.InetSocketAddress$InetSocketAddressHolder.access$600(InetSocketAddress.java:56)
+        at java.net.InetSocketAddress.getHostName(InetSocketAddress.java:345)
+        at org.apache.zookeeper.SaslServerPrincipal$WrapperInetSocketAddress.getHostName(SaslServerPrincipal.java:105)
+        at org.apache.zookeeper.SaslServerPrincipal.getServerPrincipal(SaslServerPrincipal.java:59)
+        at org.apache.zookeeper.SaslServerPrincipal.getServerPrincipal(SaslServerPrincipal.java:41)
+        at org.apache.zookeeper.ClientCnxn$SendThread.startConnect(ClientCnxn.java:1161)
+        at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1211)
+
+   Locked ownable synchronizers:
+        - None
+
+&quot;ZookeeperServiceUrlProvider-1-SendThread(HOST:2181)&quot; #12 daemon prio=5 os_prio=31 tid=0x000000011aa02800 nid=0x5803 runnable [0x00000001705c6000]
+   java.lang.Thread.State: RUNNABLE
+    at java.net.Inet4AddressImpl.getHostByAddr(Native Method)
+    at java.net.InetAddress$2.getHostByAddr(InetAddress.java:871)
+    at java.net.InetAddress.getHostFromNameService(InetAddress.java:620)
+    at java.net.InetAddress.getHostName(InetAddress.java:562)
+    at java.net.InetAddress.getHostName(InetAddress.java:534)
+    at java.net.InetSocketAddress$InetSocketAddressHolder.getHostName(InetSocketAddress.java:82)
+    at java.net.InetSocketAddress$InetSocketAddressHolder.access$600(InetSocketAddress.java:56)
+    at java.net.InetSocketAddress.getHostName(InetSocketAddress.java:345)
+    at org.apache.zookeeper.SaslServerPrincipal$WrapperInetSocketAddress.getHostName(SaslServerPrincipal.java:105)
+    at org.apache.zookeeper.SaslServerPrincipal.getServerPrincipal(SaslServerPrincipal.java:59)
+    at org.apache.zookeeper.SaslServerPrincipal.getServerPrincipal(SaslServerPrincipal.java:41)
+    at org.apache.zookeeper.ClientCnxn$SendThread.startConnect(ClientCnxn.java:1161)
+    at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1211)
+</code></pre></div><p>解决方法：启动Java进程时配置<code>-Dzookeeper.sasl.client=false</code>禁用SASL（如果你不知道SASL是什么，那你大概率并不需要它）
+详见：<a href="https://cwiki.apache.org/confluence/display/ZOOKEEPER/Client-Server+mutual+authentication" target="_blank" rel="noopener noreferrer">SASL Client-Server mutual authentication<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></p> <h2 id="参考链接"><a href="#参考链接" class="header-anchor">#</a> 参考链接</h2> <ul><li>https://stackoverflow.com/a/39698914</li></ul> <h2 id="关于作者"><a href="#关于作者" class="header-anchor">#</a> 关于作者</h2> <blockquote><p>作者 萧易客 一线深耕消息中间件，RPC框架多年，欢迎评论区或通过邮件交流。</p> <p>微信公众号: 萧易客</p> <p>github id: shawyeok</p></blockquote></div> <footer class="page-edit"><!----> <!----></footer> <!----> </main></div><div class="global-ui"><!----></div></div>
+    <script src="/assets/js/app.9ef48d25.js" defer></script><script src="/assets/js/2.f5eebbcb.js" defer></script><script src="/assets/js/1.9ad29131.js" defer></script><script src="/assets/js/32.31e0240c.js" defer></script>
+  </body>
+</html>

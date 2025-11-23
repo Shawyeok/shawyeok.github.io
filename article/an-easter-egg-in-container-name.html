@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>代码背后的故事：docker容器名生成算法 | Yike Xiao&#39;s notes</title>
+    <meta name="generator" content="VuePress 1.9.10">
+    <script async="true" src="https://www.googletagmanager.com/gtag/js?id=G-0C1K4S1E51"></script>
+    <script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-0C1K4S1E51');</script>
+    <meta name="description" content="">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    
+    <link rel="preload" href="/assets/css/0.styles.6e54da3e.css" as="style"><link rel="preload" href="/assets/js/app.9ef48d25.js" as="script"><link rel="preload" href="/assets/js/2.f5eebbcb.js" as="script"><link rel="preload" href="/assets/js/1.9ad29131.js" as="script"><link rel="preload" href="/assets/js/20.4eb6c79a.js" as="script"><link rel="prefetch" href="/assets/js/10.21046356.js"><link rel="prefetch" href="/assets/js/11.2bedc7c8.js"><link rel="prefetch" href="/assets/js/12.46359a15.js"><link rel="prefetch" href="/assets/js/13.7695cfe8.js"><link rel="prefetch" href="/assets/js/14.0892301c.js"><link rel="prefetch" href="/assets/js/15.07042ca2.js"><link rel="prefetch" href="/assets/js/16.f3d7081e.js"><link rel="prefetch" href="/assets/js/17.1538bb10.js"><link rel="prefetch" href="/assets/js/18.bbd7dc45.js"><link rel="prefetch" href="/assets/js/19.fa97b02e.js"><link rel="prefetch" href="/assets/js/21.b0494726.js"><link rel="prefetch" href="/assets/js/22.31643f4c.js"><link rel="prefetch" href="/assets/js/23.7f7e5048.js"><link rel="prefetch" href="/assets/js/24.4d17083e.js"><link rel="prefetch" href="/assets/js/25.c75ab2e9.js"><link rel="prefetch" href="/assets/js/26.5d5c559e.js"><link rel="prefetch" href="/assets/js/27.047860c9.js"><link rel="prefetch" href="/assets/js/28.4999dee7.js"><link rel="prefetch" href="/assets/js/29.291b8e14.js"><link rel="prefetch" href="/assets/js/3.c8e115ea.js"><link rel="prefetch" href="/assets/js/30.ac87a54c.js"><link rel="prefetch" href="/assets/js/31.0546634e.js"><link rel="prefetch" href="/assets/js/32.31e0240c.js"><link rel="prefetch" href="/assets/js/33.98c113c0.js"><link rel="prefetch" href="/assets/js/34.39be6d45.js"><link rel="prefetch" href="/assets/js/35.65482061.js"><link rel="prefetch" href="/assets/js/4.7cad52cc.js"><link rel="prefetch" href="/assets/js/5.b1936ff3.js"><link rel="prefetch" href="/assets/js/6.9046b48b.js"><link rel="prefetch" href="/assets/js/7.145793b9.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.d6ebca66.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.6e54da3e.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">Yike Xiao's notes</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/article/" class="nav-link router-link-active">
+  Article
+</a></div><div class="nav-item"><a href="/ad-hoc/" class="nav-link">
+  Ad-Hoc
+</a></div><div class="nav-item"><a href="https://github.com/Shawyeok" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/article/" class="nav-link router-link-active">
+  Article
+</a></div><div class="nav-item"><a href="/ad-hoc/" class="nav-link">
+  Ad-Hoc
+</a></div><div class="nav-item"><a href="https://github.com/Shawyeok" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>Article</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/article/an-easter-egg-in-container-name.html" aria-current="page" class="active sidebar-link">代码背后的故事：docker容器名生成算法</a></li><li><a href="/article/improve-bootstrap.html" class="sidebar-link">为了解决服务启动慢的问题，我为什么要给Apollo和Spring提交PR？</a></li><li><a href="/article/pulsar-client-memory-control.html" class="sidebar-link">Pulsar客户端如何控制内存使用</a></li><li><a href="/article/tomcat-blocking-on-acceptor.html" class="sidebar-link">一次Java后端服务间歇性响应慢的问题排查记录</a></li><li><a href="/article/bookkeeper-inode-leak.html" class="sidebar-link">一次bookkeeper inode泄露问题的排查经历</a></li><li><a href="/article/ping-issue.html" class="sidebar-link">为什么我的域名ping不通？</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="代码背后的故事-docker容器名生成算法"><a href="#代码背后的故事-docker容器名生成算法" class="header-anchor">#</a> 代码背后的故事：docker容器名生成算法</h1> <p>我们知道容器化最大的好处是软件交付形成了一种标准化，其带来的好处是巨大且深远的，让开发者从解决各种环境差异的痛苦中解放出来，同时大幅简化了部署流程和管理成本。
+<img src="/assets/img/48ad290f82cb48cfa6da236fef8ae019.749842bc.png" alt="image.png"></p> <p>当我们用<code>docker run</code>运行一个容器时，如果没有指定一个名字，docker将会为给我们自动生成一个名字，通过<code>docker ps</code>可以查看正在运行的容器，例如下面图中的<code>exciting_gates</code>, <code>sad_babbage</code>, <code>reverent_albattani</code> <img src="/assets/img/fbd3cf31ce48474b86a0d6352b586189.b5e216f7.png" alt="image.png"></p> <p>作为开发者的你有没有好奇过这个名字到底是什么意思？它的生成机制是什么？如果你和我一样也对此好奇，终于在某一天忍不住要去了解一下背后的原理。那么恭喜你，现在有了AI加持，你需要做的只是具有针对性地提问就行。</p> <p>利用<a href="https://deepwiki.com" target="_blank" rel="noopener noreferrer">deepwiki<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>工具借助LLM可以帮助你快速从一个大型代码仓库中找到你想要关注的代码实现细节，当然把代码克隆到本地，用Cursor Ask模式也可以帮助我们理解指定的代码仓。</p> <p><img src="/assets/img/6acda602a5be45c89ac01583bdeef102.95b74f86.png" alt="image.png">
+https://deepwiki.com/search/how-docker-generate-the-name-i_4d18ce9d-57b5-49fb-83eb-638162b07d07</p> <p>可以看到容器名的生成算法实现在了<code>pkg/namesgenerator/names-generator.go</code>文件内，它对外提供了一个函数GetRandomName：
+<img src="/assets/img/0733342ab4af4954bdfc58fc95acd583.e8db53be.png" alt="image.png"></p> <p>函数非常简单，最重要的部分就是从两个数组字典（形容词数组和人名的姓surname数组）各随机取一个，构成adjective_surname这种格式。值得一提的是函数中有一个硬编码，当匹配到<code>boring_wozniak</code>时直接跳过重新选择，看来当初写这段代码的程序员一定是Steve Woziak（苹果公司创始人之一）的粉丝。例如文章开头截图中的<code>exciting_gates</code>和<code>sad_babbage</code>就是这样生成的。</p> <p>我们看看上面两个数组中分别都有些什么：</p> <p>左边的形容词数组：</p> <div class="language- extra-class"><pre class="language-text"><code>	left = [...]string{
+		&quot;admiring&quot;,
+		&quot;adoring&quot;,
+		&quot;affectionate&quot;,
+		&quot;agitated&quot;,
+		&quot;amazing&quot;,
+		...
+		&quot;wonderful&quot;,
+		&quot;xenodochial&quot;,
+		&quot;youthful&quot;,
+		&quot;zealous&quot;,
+		&quot;zen&quot;,
+	}
+</code></pre></div><p>几乎都是比较正面、积极的形容词，有好些词汇比较生僻笔者从没使用过（逃）。</p> <p>右边的人名surname数组：</p> <div class="language- extra-class"><pre class="language-text"><code>	right = [...]string{
+		// Maria Gaetana Agnesi - Italian mathematician, philosopher, theologian and humanitarian. She was the first woman to write a mathematics handbook and the first woman appointed as a Mathematics Professor at a University. https://en.wikipedia.org/wiki/Maria_Gaetana_Agnesi
+		&quot;agnesi&quot;,
+
+		// Muhammad ibn Jābir al-Ḥarrānī al-Battānī was a founding father of astronomy. https://en.wikipedia.org/wiki/Mu%E1%B8%A5ammad_ibn_J%C4%81bir_al-%E1%B8%A4arr%C4%81n%C4%AB_al-Batt%C4%81n%C4%AB
+		&quot;albattani&quot;,
+
+		// Frances E. Allen, became the first female IBM Fellow in 1989. In 2006, she became the first female recipient of the ACM's Turing Award. https://en.wikipedia.org/wiki/Frances_E._Allen
+		&quot;allen&quot;,
+
+		// June Almeida - Scottish virologist who took the first pictures of the rubella virus - https://en.wikipedia.org/wiki/June_Almeida
+		&quot;almeida&quot;,
+
+        ...
+
+		// The Wright brothers, Orville and Wilbur - credited with inventing and building the world's first successful airplane and making the first controlled, powered and sustained heavier-than-air human flight - https://en.wikipedia.org/wiki/Wright_brothers
+		&quot;wright&quot;,
+
+		// Chien-Shiung Wu - Chinese-American experimental physicist who made significant contributions to nuclear physics. https://en.wikipedia.org/wiki/Chien-Shiung_Wu
+		&quot;wu&quot;,
+
+		// Rosalyn Sussman Yalow - Rosalyn Sussman Yalow was an American medical physicist, and a co-winner of the 1977 Nobel Prize in Physiology or Medicine for development of the radioimmunoassay technique. https://en.wikipedia.org/wiki/Rosalyn_Sussman_Yalow
+		&quot;yalow&quot;,
+
+		// Ada Yonath - an Israeli crystallographer, the first woman from the Middle East to win a Nobel prize in the sciences. https://en.wikipedia.org/wiki/Ada_Yonath
+		&quot;yonath&quot;,
+
+		// Nikolay Yegorovich Zhukovsky (Russian: Никола́й Его́рович Жуко́вский, January 17 1847 – March 17, 1921) was a Russian scientist, mathematician and engineer, and a founding father of modern aero- and hydrodynamics. Whereas contemporary scientists scoffed at the idea of human flight, Zhukovsky was the first to undertake the study of airflow. He is often called the Father of Russian Aviation. https://en.wikipedia.org/wiki/Nikolay_Yegorovich_Zhukovsky
+		&quot;zhukovsky&quot;,
+	}
+</code></pre></div><p>人名数组中基本上都是一些比较知名的科学家例如欧拉、爱因斯坦、费曼和图灵等，除了科学家之外还有工程师例如UNIX和C语言之父Ken Thompson、发明Linux和Git的Linus Torvalds和摩尔定律的提出者Moore等。限于篇幅原因，不能在文中一一列出，感兴趣的可以直接去查看<a href="https://github.com/moby/moby/blob/19ee1776/pkg/namesgenerator/names-generator.go" target="_blank" rel="noopener noreferrer">源文件<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>。</p> <p>这个名单中的中国人有两个：<a href="https://en.wikipedia.org/wiki/Tu_Youyou" target="_blank" rel="noopener noreferrer">屠呦呦<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>和<a href="https://en.wikipedia.org/wiki/Chien-Shiung_Wu" target="_blank" rel="noopener noreferrer">吴健雄<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>。</p> <p>没想到看起来普通的一个容器名生成算法，翻一番它的变更历史，可以看到很多代码之外的故事。</p> <p>值得一提的是这个文件中的列表已经在2022年被Moby项目的维护人员标记为冻结不再接受新的名单变更了，主要原因是后面的维护负担越来越大，这里主要体现在两个方面一是adjective_surname这种形式有的时候会引入一些尴尬的组合，其次是名单中的人物会变得有争议不再适合放在名单中了，例如有两位牵扯到爱泼斯坦案件的。</p> <p>另外，在 docker 0.7.x 之前，容器名的生成算法生成的还是颜色和动物组成color_animal这种组合（例如 red_panda），后来才改成了 adjective_surname，向那些顶尖科学家和工程师们致敬。</p> <p>看到这里，当下一次你再docker run起来一个容器时，会不会好奇这个容器名又是在向谁致敬呢？</p></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><!----> <span class="next"><a href="/article/improve-bootstrap.html">
+        为了解决服务启动慢的问题，我为什么要给Apollo和Spring提交PR？
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"><!----></div></div>
+    <script src="/assets/js/app.9ef48d25.js" defer></script><script src="/assets/js/2.f5eebbcb.js" defer></script><script src="/assets/js/1.9ad29131.js" defer></script><script src="/assets/js/20.4eb6c79a.js" defer></script>
+  </body>
+</html>
